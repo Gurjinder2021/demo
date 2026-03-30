@@ -1,0 +1,34 @@
+name: PR Gatekeeper
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  check-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Merge & Reviewer Rules
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ADMIN: "Gurjinder2021"
+          REQUIRED_REVIEWER: "yogeshrathi05"
+        run: |
+          # 1. Check if the person trying to merge (the actor) is the Admin
+          if [ "${{ github.actor }}" != "$ADMIN" ]; then
+            echo "Error: Only $ADMIN is allowed to merge pull requests."
+            exit 1
+          fi
+
+          # 2. Check if the required reviewer has approved
+          # Use GitHub CLI to get approval status from the specific user
+          APPROVAL=$(gh pr view ${{ github.event.pull_request.number }} --json reviews --jq ".reviews[] | select(.author.login == \"$REQUIRED_REVIEWER\" and .state == \"APPROVED\") | .state")
+
+          if [ "$APPROVAL" != "APPROVED" ]; then
+            echo "Error: This PR requires an approval from $REQUIRED_REVIEWER before it can be merged."
+            exit 1
+          fi
+
+          echo "Success: Admin detected and required review found."
