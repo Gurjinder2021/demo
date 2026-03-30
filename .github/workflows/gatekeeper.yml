@@ -13,8 +13,8 @@ jobs:
       - name: Check Merge & Reviewer Rules
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ADMIN: "Gurjinder2021"
-          REQUIRED_REVIEWER: "erravinder90"
+          ADMIN: "YOUR_ADMIN_USERNAME"
+          REQUIRED_REVIEWER: "YOUR_REVIEWER_USERNAME"
         run: |
           # 1. Check if the person trying to merge (the actor) is the Admin
           if [ "${{ github.actor }}" != "$ADMIN" ]; then
